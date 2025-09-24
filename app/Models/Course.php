@@ -10,15 +10,13 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable = [
-        'course_code',
-        'course_name',
-        'credits',
+        'course_code','course_name','credits'
     ];
 
     public function students()
     {
         return $this->belongsToMany(Student::class, 'enrollments')
-                    ->withPivot('enrolled_on', 'status')
+                    ->withPivot('enrolled_on','status')
                     ->withTimestamps();
     }
 }

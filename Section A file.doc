@@ -1,0 +1,55 @@
+Section A — Short Answer
+1. Routing & Middleware
+a)
+Route::resource() → Generates all CRUD routes (index, create, store, show, edit, update, destroy).
+Route::apiResource() → Generates API-only routes (index, store, show, update, destroy), excluding create & edit because APIs don’t serve HTML forms.
+b)
+Example middleware (php artisan make:middleware OfficeHoursMiddleware):
+public function handle($request, Closure $next)
+{
+    $hour = now()->format('H');
+    if ($hour < 8 || $hour > 17) {
+        abort(403, 'Access only allowed during office hours');
+    }
+    return $next($request);
+}
+2. Eloquent ORM
+a)
+hasOne → Defined on the parent that owns the related model:
+class Student extends Model {
+    public function profile() { return $this->hasOne(Profile::class); }
+}
+
+belongsTo → Defined on the child pointing back to its parent:
+class Profile extends Model {
+    public function student() { return $this->belongsTo(Student::class); }
+}
+b)
+Fetch students with their courses:
+$students = Student::with('courses')->get();
+3. Validation & Security
+a)
+Laravel protects against CSRF by automatically including a hidden _token field in forms. Middleware (VerifyCsrfToken) checks the token on submission, blocking forged requests.
+b)
+Validation should go in a Form Request class (e.g., StoreStudentRequest).
+- Keeps controllers clean.
+- Centralizes validation logic, reusable, easier to test.
+4. Queues & Jobs
+a)
+Queues handle time-consuming tasks in the background, improving app performance.
+Examples in a Student Management System:
+1. Sending student welcome emails.
+2. Generating bulk student reports (PDF/Excel).
+b)
+Create job:
+php artisan make:job SendStudentWelcomeEmail
+
+In job class:
+public function handle()
+{
+    Mail::to($this->student->email)
+        ->send(new StudentWelcomeMail($this->student));
+}
+
+Dispatch:
+SendStudentWelcomeEmail::dispatch($student);

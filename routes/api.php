@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\StudentController;
+use App\Http\Controllers\Api\EnrollmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,14 +16,20 @@ use App\Http\Controllers\Api\StudentController;
 |
 */
 
-// Example test route
+// Authenticated user (Sanctum)
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Students API Routes
-Route::get('/students', [StudentController::class, 'index']);   // GET /api/students - paginated list
-Route::get('/students/{id}', [StudentController::class, 'show']); // GET /api/students/{id} - single student
-Route::post('/students', [StudentController::class, 'store']);   // POST /api/students - create new student
-Route::put('/students/{id}', [StudentController::class, 'update']); // PUT /api/students/{id} - update student
-Route::delete('/students/{id}', [StudentController::class, 'destroy']); // DELETE /api/students/{id} - delete student
+// ----------------- STUDENTS ROUTES -----------------
+Route::get('/students', [StudentController::class, 'index']);          // GET all students (paginated)
+Route::get('/students/{id}', [StudentController::class, 'show']);      // GET single student with courses
+Route::post('/students', [StudentController::class, 'store']);         // Create student
+Route::put('/students/{id}', [StudentController::class, 'update']);    // Update student
+Route::delete('/students/{id}', [StudentController::class, 'destroy']); // Delete student
+
+// ----------------- ENROLLMENT ROUTES -----------------
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/enrollments', [EnrollmentController::class, 'store']);   // Enroll a student into a course
+    Route::get('/my-courses', [EnrollmentController::class, 'myCourses']); // Authenticated student's courses
+});
